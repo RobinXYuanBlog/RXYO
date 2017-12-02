@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">RXYO</string>
+    <string name="author_name">Robin.X.Yuan</string>
+    <string name="image_button">Select Image</string>
+    <string name="photo_button">Take Photo</string>
+    <string name="video_button">Take Video</string>
+    <string name="button_font_family">Thames</string>
+    <string name="filter_button">Filter</string>
+    <string name="tools_button">Tools</string>
+    <string name="share_button">Share</string>
+</resources>
