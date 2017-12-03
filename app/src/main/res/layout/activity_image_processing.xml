@@ -88,6 +88,13 @@
         <!--</LinearLayout>-->
     <!--</RelativeLayout>-->
 
+    <ImageView
+        android:id="@+id/show_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="300dp"
+        android:layout_margin="20dp"/>
+
     <com.example.robinxyuan.rxyo.ImageProcessing.HorizontalListView
         android:id="@+id/horizon_listview"
         android:layout_width="match_parent"
@@ -96,12 +103,5 @@
 
 
     </com.example.robinxyuan.rxyo.ImageProcessing.HorizontalListView>
-
-    <ImageView
-        android:id="@+id/show_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="300dp"
-        android:layout_margin="30dp"/>
 
 </RelativeLayout>
