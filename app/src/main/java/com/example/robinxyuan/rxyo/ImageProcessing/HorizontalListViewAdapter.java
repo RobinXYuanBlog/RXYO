@@ -21,22 +21,22 @@ import com.example.robinxyuan.rxyo.R;
 import java.util.List;
 
 public class HorizontalListViewAdapter extends BaseAdapter{
-    private Bitmap[] mIconIDs;
+    private Bitmap[] bitmaps;
     private String[] mTitles;
     private Context mContext;
     private LayoutInflater mInflater;
     Bitmap iconBitmap;
     private int selectIndex = -1;
 
-    public HorizontalListViewAdapter(Context context, String[] titles, Bitmap[] ids){
+    public HorizontalListViewAdapter(Context context, String[] titles, Bitmap[] bitmap){
         this.mContext = context;
-        this.mIconIDs = ids;
+        this.bitmaps = bitmap;
         this.mTitles = titles;
         mInflater=(LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);//LayoutInflater.from(mContext);
     }
     @Override
     public int getCount() {
-        return mIconIDs.length;
+        return bitmaps.length;
 //        return mIconIDs.size();
     }
     @Override
@@ -56,8 +56,8 @@ public class HorizontalListViewAdapter extends BaseAdapter{
         if(convertView==null){
             holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.horizontal_list_item, null);
-            holder.mImage=(ImageView)convertView.findViewById(R.id.img_list_item);
-            holder.mTitle=(TextView)convertView.findViewById(R.id.text_list_item);
+            holder.mImage = (ImageView)convertView.findViewById(R.id.img_list_item);
+            holder.mTitle = (TextView)convertView.findViewById(R.id.text_list_item);
             convertView.setTag(holder);
         }else{
             holder=(ViewHolder)convertView.getTag();
@@ -70,7 +70,7 @@ public class HorizontalListViewAdapter extends BaseAdapter{
 
         holder.mTitle.setText(mTitles[position]);
 //        iconBitmap = getPropThumnail(mIconIDs[position]);
-        iconBitmap = getPropThumnail(mIconIDs[position]);
+        iconBitmap = getPropThumnail(bitmaps[position]);
 
         holder.mImage.setImageBitmap(iconBitmap);
 

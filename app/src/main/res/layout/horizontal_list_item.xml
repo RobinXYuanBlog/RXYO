@@ -5,7 +5,6 @@
     android:paddingLeft="2dip"
     android:paddingRight="2dip"
     android:paddingTop="2dip"
-    android:paddingBottom="2dip"
     android:orientation="vertical" 
     android:gravity="center"
     android:clickable="true"

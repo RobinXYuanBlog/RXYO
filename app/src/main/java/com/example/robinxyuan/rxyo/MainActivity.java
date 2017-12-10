@@ -21,15 +21,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.AppGlideModule;
 import com.example.robinxyuan.rxyo.Image.ImageLoader;
 import com.example.robinxyuan.rxyo.Image.ListViewAdapter;
 import com.example.robinxyuan.rxyo.Image.SelectPhotoActivity;
 import com.example.robinxyuan.rxyo.Image.SelectPhotoAdapter;
-import com.wingjay.blurimageviewlib.BlurImageView;
-import com.wingjay.blurimageviewlib.FastBlurUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +32,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
+import jp.co.cyberagent.android.gpuimage.GPUImage;
+import jp.co.cyberagent.android.gpuimage.GPUImageGaussianBlurFilter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -64,11 +60,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ViewPagerAdapter adapter;
     private ScheduledExecutorService scheduledExecutorService;
 
+    private GPUImage gpuImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mViewPaper = (ViewPager) findViewById(R.id.vp);
+
+        gpuImage = new GPUImage(this);
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 
@@ -86,6 +86,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), imageIds[i]);
 //            bitmap = FastBlurUtil.doBlur(bitmap, 20, false);
+            gpuImage.setImage(bitmap);
+            gpuImage.setFilter(new GPUImageGaussianBlurFilter(7));
+            bitmap = gpuImage.getBitmapWithFilterApplied();
 //
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setColorFilter(Color.argb(50, 50, 50, 50), PorterDuff.Mode.DARKEN);
