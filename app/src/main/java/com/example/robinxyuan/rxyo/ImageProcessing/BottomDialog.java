@@ -1,5 +1,6 @@
 package com.example.robinxyuan.rxyo.ImageProcessing;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.FragmentManager;
@@ -26,6 +27,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.robinxyuan.rxyo.Image.ImageLoader;
@@ -53,11 +55,24 @@ public class BottomDialog extends DialogFragment {
 
     private Bitmap iconBitmap = null;
 
-    private GPUImage gpuImage = new GPUImage(getActivity());
+    private GPUImage gpuImage;
 
     protected Dialog dialog;
 
     private static final String TAG = "BottomDialogFragment";
+
+    private Submit submit;
+
+    @Override
+    public void onAttach(Activity activity) {
+        // TODO Auto-generated method stub
+        super.onAttach(activity);
+        submit = (Submit) activity;
+    }
+
+    public interface Submit {
+        public void submit(int position);
+    }
 
     public static BottomDialog newInstance() {
         Bundle args = new Bundle();
@@ -82,7 +97,7 @@ public class BottomDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.BottomDialog);
-        View view = View.inflate(baseA, R.layout.fragment_bottom_dialog, null);
+        View view = View.inflate(getActivity(), R.layout.fragment_bottom_dialog, null);
 
         initView(view);
 
@@ -112,6 +127,9 @@ public class BottomDialog extends DialogFragment {
     }
 
     private void initView(View view) {
+
+        gpuImage = new GPUImage(getActivity());
+
         iconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.original);
 
         horizontalListView = (HorizontalListView) view.findViewById(R.id.horizon_listview);
@@ -130,6 +148,52 @@ public class BottomDialog extends DialogFragment {
 
         horizontalListViewAdapter = new HorizontalListViewAdapter(getActivity().getApplicationContext(), titles, iconBitmaps);
         horizontalListView.setAdapter(horizontalListViewAdapter);
+
+        horizontalListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                // TODO Auto-generated method stub
+//              if(olderSelectView == null){
+//                  olderSelectView = view;
+//              }else{
+//                  olderSelectView.setSelected(false);
+//                  olderSelectView = null;
+//              }
+//              olderSelectView = view;
+//              view.setSelected(true);
+
+                submit.submit(position);
+
+//                switch (position) {
+//                    case 0:
+//
+//                        break;
+//                    case 1:
+//
+//                        break;
+//                    case 2:
+//
+//                        break;
+//                    case 3:
+//
+//                        break;
+//                    case 4:
+//
+//                        break;
+//                    case 5:
+//
+//
+//                        break;
+//                    default:
+//                        break;
+//                }
+
+//                previewImg.setImageBitmap(bitmaps[position]);
+
+            }
+        });
 
 
     }

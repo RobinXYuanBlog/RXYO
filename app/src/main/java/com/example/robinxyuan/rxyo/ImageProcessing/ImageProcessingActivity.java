@@ -50,24 +50,23 @@ public class ImageProcessingActivity extends AppCompatActivity{
 //    ImageView previewImg;
     View olderSelectView = null;
 
-    private GPUImage gpuImage = new GPUImage(this);
+    private GPUImage gpuImage;
 
-    private Bitmap bitmap = null;
-    private Bitmap iconBitmap = null;
+    protected Bitmap bitmap;
+    protected Bitmap iconBitmap;
 
-    Intent data = getIntent();
+//    Intent data;
+//
+//    @BindView(R.id.filter_button)
+//    Button filterButton;
+//
+//    @BindView(R.id.tools_button)
+//    Button toolsButton;
+//
+//    @BindView(R.id.share_button)
+//    Button shareButton;
 
-    @BindView(R.id.filter_button)
-    Button filterButton;
-
-    @BindView(R.id.tools_button)
-    Button toolsButton;
-
-    @BindView(R.id.share_button)
-    Button shareButton;
-
-    @BindView(R.id.show_image)
-    ImageView previewImg;
+    ImageView imageView;
 
 //    @Override;
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,20 +83,17 @@ public class ImageProcessingActivity extends AppCompatActivity{
             }
         };
 
-        initImageView();
+        initUI();
 
-        FragmentManager manager = getFragmentManager();
-        final FragmentTransaction transaction = manager.beginTransaction();
-
-        final BottomDialog bottomDialog = new BottomDialog();
-
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                transaction.replace(R.id.bottom_sheet, bottomDialog);
-            }
-        });
     }
+
+//    public void pop(View view) {
+//        switch (view.getId()) {
+//            case R.id.filter_button:
+//                BottomDialog.showDialog(this);
+//                break;
+//        }
+//    }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -105,47 +101,97 @@ public class ImageProcessingActivity extends AppCompatActivity{
         return true;
     }
 
-    public void initImageView() {
+//    public void initImageView() {
+//
+//        data = getIntent();
+//
+////        ImageView imageView = (ImageView) findViewById(R.id.show_image);
+//
+//        gpuImage = new GPUImage(this);
+//
+//        if(data == null) {
+//            return;
+//        }
+//
+//        boolean isFromCamera = data.getBooleanExtra("isFromCamera",false);
+//        ArrayList<SelectPhotoAdapter.SelectPhotoEntity> selectedPhotos = data.getParcelableArrayListExtra("selectPhotos");
+//
+//        if (selectedPhotos.size() > 0) {
+//            SelectPhotoAdapter.SelectPhotoEntity enUrl = selectedPhotos.get(0);
+//            String url = enUrl.getUrl();
+//            Bitmap myBitmap = BitmapFactory.decodeFile(url);
+//            imageView.setImageBitmap(myBitmap);
+//        }
+//
+//    }
 
-        if(data == null) {
+//    @Override
+//    public void submit(int position) {
+//
+//        switch (position) {
+//                    case 0:
+//                        horizontalListViewAdapter.setSelectIndex(position);
+//                        imageView.setImageBitmap(bitmap);
+//                        horizontalListViewAdapter.notifyDataSetChanged();
+//                        break;
+//                    case 1:
+//                        horizontalListViewAdapter.setSelectIndex(position);
+//                        Bitmap grayBitmap = grayScaleImage(bitmap);
+//                        imageView.setImageBitmap(grayBitmap);
+//                        horizontalListViewAdapter.notifyDataSetChanged();
+//                        break;
+//                    case 2:
+//                        horizontalListViewAdapter.setSelectIndex(position);
+//                        Bitmap embossBitmap = embossImage(bitmap);
+//                        imageView.setImageBitmap(embossBitmap);
+//                        horizontalListViewAdapter.notifyDataSetChanged();
+//                        break;
+//                    case 3:
+//                        horizontalListViewAdapter.setSelectIndex(position);
+//                        Bitmap sketchBitmap = sketchImage(bitmap);
+//                        imageView.setImageBitmap(sketchBitmap);
+//                        horizontalListViewAdapter.notifyDataSetChanged();
+//                        break;
+//                    case 4:
+//                        horizontalListViewAdapter.setSelectIndex(position);
+//                        Bitmap pixellateBitmap = pixellateImage(bitmap);
+//                        imageView.setImageBitmap(pixellateBitmap);
+//                        horizontalListViewAdapter.notifyDataSetChanged();
+//                        break;
+//                    case 5:
+//                        horizontalListViewAdapter.setSelectIndex(position);
+//                        Bitmap halftoneBitmap = halftoneImage(bitmap);
+//                        imageView.setImageBitmap(halftoneBitmap);
+//                        horizontalListViewAdapter.notifyDataSetChanged();
+//                        break;
+//                    default:
+//                        break;
+//        }
+//    }
+
+
+    public void initUI(){
+
+        Intent data = getIntent();
+        gpuImage = new GPUImage(this);
+
+
+        if(data == null)
             return;
-        }
 
         boolean isFromCamera = data.getBooleanExtra("isFromCamera",false);
         ArrayList<SelectPhotoAdapter.SelectPhotoEntity> selectedPhotos = data.getParcelableArrayListExtra("selectPhotos");
+//        Log.i("Alex","选择的图片是"+selectedPhotos);
+//        ListView listView = findViewById(R.id.listView);
+
+        imageView = findViewById(R.id.show_image);
 
         if (selectedPhotos.size() > 0) {
             SelectPhotoAdapter.SelectPhotoEntity enUrl = selectedPhotos.get(0);
             String url = enUrl.getUrl();
             bitmap = BitmapFactory.decodeFile(url);
+            imageView.setImageBitmap(bitmap);
         }
-
-        previewImg.setImageBitmap(bitmap);
-
-
-    }
-
-    private void showMenuSheet(final HorizontalListView horizontalListView) {
-
-    }
-
-    public void initUI(){
-
-//        data = getIntent();
-//        gpuImage = new GPUImage(this);
-//
-//
-//        if(data == null)
-//            return;
-
-//        boolean isFromCamera = data.getBooleanExtra("isFromCamera",false);
-//        ArrayList<SelectPhotoAdapter.SelectPhotoEntity> selectedPhotos = data.getParcelableArrayListExtra("selectPhotos");
-//        Log.i("Alex","选择的图片是"+selectedPhotos);
-//        ListView listView = findViewById(R.id.listView);
-
-//        ImageView imageView = findViewById(R.id.show_image);
-
-
 
         iconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.original);
 
@@ -154,9 +200,9 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
         String[] titles = {"Original", "Gray", "Emboss", "Sketch", "Pixellate", "Halftone"};
 
-        // Use GPUImage to process images
+//         Use GPUImage to process images
 
-        // Get all images after filtering
+//         Get all images after filtering
         Bitmap iconGrayBitmap = grayScaleImage(iconBitmap);
         Bitmap iconEmbossBitmap = embossImage(iconBitmap);
         Bitmap iconSkecthBitmap = sketchImage(iconBitmap);
@@ -171,7 +217,7 @@ public class ImageProcessingActivity extends AppCompatActivity{
         horizontalListViewAdapter = new HorizontalListViewAdapter(getApplicationContext(), titles, iconBitmaps);
         horizontalListView.setAdapter(horizontalListViewAdapter);
 
-//        imageView.setImageBitmap(bitmap);
+        imageView.setImageBitmap(bitmap);
 
         horizontalListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -191,37 +237,37 @@ public class ImageProcessingActivity extends AppCompatActivity{
                 switch (position) {
                     case 0:
                         horizontalListViewAdapter.setSelectIndex(position);
-                        previewImg.setImageBitmap(bitmap);
+                        imageView.setImageBitmap(bitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 1:
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap grayBitmap = grayScaleImage(bitmap);
-                        previewImg.setImageBitmap(grayBitmap);
+                        imageView.setImageBitmap(grayBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 2:
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap embossBitmap = embossImage(bitmap);
-                        previewImg.setImageBitmap(embossBitmap);
+                        imageView.setImageBitmap(embossBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 3:
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap sketchBitmap = sketchImage(bitmap);
-                        previewImg.setImageBitmap(sketchBitmap);
+                        imageView.setImageBitmap(sketchBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 4:
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap pixellateBitmap = pixellateImage(bitmap);
-                        previewImg.setImageBitmap(pixellateBitmap);
+                        imageView.setImageBitmap(pixellateBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 5:
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap halftoneBitmap = halftoneImage(bitmap);
-                        previewImg.setImageBitmap(halftoneBitmap);
+                        imageView.setImageBitmap(halftoneBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     default:
