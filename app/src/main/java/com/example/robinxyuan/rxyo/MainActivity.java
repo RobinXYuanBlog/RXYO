@@ -1,11 +1,14 @@
 package com.example.robinxyuan.rxyo;
 
-import android.content.DialogInterface;
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -17,21 +20,31 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.robinxyuan.rxyo.App.App;
+import com.example.robinxyuan.rxyo.Camera.CameraActivity;
 import com.example.robinxyuan.rxyo.Image.ImageLoader;
-import com.example.robinxyuan.rxyo.Image.ListViewAdapter;
+import com.example.robinxyuan.rxyo.Adapter.ListViewAdapter;
 import com.example.robinxyuan.rxyo.Image.SelectPhotoActivity;
-import com.example.robinxyuan.rxyo.Image.SelectPhotoAdapter;
+import com.example.robinxyuan.rxyo.Adapter.SelectPhotoAdapter;
+import com.example.robinxyuan.rxyo.Utils.CommonUtils;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageGaussianBlurFilter;
 
@@ -62,6 +75,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private GPUImage gpuImage;
 
+    File mFile;
+
+    @BindView(R.id.photo_button)
+    Button photoButton;
+
+    @BindView(R.id.image_button)
+    Button imageButton;
+
+    @BindView(R.id.video_button)
+    Button videoButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +98,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         int width = displayMetrics.widthPixels;
         int height = displayMetrics.heightPixels;
+
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
+
+        ButterKnife.bind(this);
 
 //        ImageView buttonBackground = (ImageView) findViewById(R.id.btn_background);
 
@@ -139,8 +167,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        View bt_add_photo = findViewById(R.id.image_button);
-        bt_add_photo.setOnClickListener(this);
+//        View bt_add_photo = findViewById(R.id.image_button);
+//        bt_add_photo.setOnClickListener(this);
+
+//        photoButton = findViewById(R.id.photo_button);
+//        photoButton.setOnClickListener(this);
+
+        imageButton.setTypeface(font);
+        imageButton.setText(R.string.icon_image);
+        imageButton.setOnClickListener(this);
+
+        photoButton.setTypeface(font);
+        photoButton.setText(R.string.icon_camera);
+        photoButton.setOnClickListener(this);
+
+        videoButton.setTypeface(font);
+        videoButton.setText(R.string.icon_video);
+
+
 //        imageLoader = new ImageLoader(this);
 //        screenWidth = SelectPhotoAdapter.getScreenWidth(this);
 //        photoListViewAdapter = new ListViewAdapter<SelectPhotoAdapter.SelectPhotoEntity>(this,R.layout.listview_item,null) {
@@ -157,11 +201,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.image_button:
-                Intent intent = new Intent(this,SelectPhotoActivity.class);
+                Intent photoIntent = new Intent(this,SelectPhotoActivity.class);
 //                startActivityForResult(intent,10);
-                startActivity(intent);
+                startActivity(photoIntent);
 //                overridePendingTransition(R.anim.in_from_left_to_center, R.anim.out_from_center_to_right);
                 break;
+            case R.id.photo_button:
+                Intent cameraIntent = new Intent(this, CameraActivity.class);
+                startActivity(cameraIntent);
+//                Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
             default:
                 break;
         }

@@ -1,43 +1,43 @@
 package com.example.robinxyuan.rxyo.ImageProcessing;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.opengl.GLSurfaceView;
+import android.graphics.Typeface;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.DragEvent;
 import android.view.Menu;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.robinxyuan.rxyo.CustomView.ArcMenu.ArcMenu;
+import com.example.robinxyuan.rxyo.CustomView.HorizontalListView.HorizontalListView;
+import com.example.robinxyuan.rxyo.Adapter.HorizontalListViewAdapter;
 import com.example.robinxyuan.rxyo.Image.ImageLoader;
-import com.example.robinxyuan.rxyo.Image.ListViewAdapter;
-import com.example.robinxyuan.rxyo.Image.SelectPhotoActivity;
-import com.example.robinxyuan.rxyo.Image.SelectPhotoAdapter;
+import com.example.robinxyuan.rxyo.Adapter.ListViewAdapter;
+import com.example.robinxyuan.rxyo.Adapter.SelectPhotoAdapter;
 import com.example.robinxyuan.rxyo.R;
+import com.example.robinxyuan.rxyo.SlideBottomPanel.SlideBottomPanel;
+import com.example.robinxyuan.rxyo.Utils.BitmapUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
-import jp.co.cyberagent.android.gpuimage.GPUImageColorDodgeBlendFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageEmbossFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageGrayscaleFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageHalftoneFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImagePixelationFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageSketchFilter;
+//import me.next.slidebottompanel.SlideBottomPanel;
 
 public class ImageProcessingActivity extends AppCompatActivity{
 
@@ -54,6 +54,14 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
     protected Bitmap bitmap;
     protected Bitmap iconBitmap;
+
+    private ArcMenu arcMenu;
+
+//    @BindView(R.id.filterBottomPanel)
+    SlideBottomPanel slideBottomPanel;
+
+//    @BindView(R.id.filter_button) Button filterButton;
+    Button filterButton;
 
 //    Intent data;
 //
@@ -73,6 +81,8 @@ public class ImageProcessingActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_processing);
 
+        ButterKnife.bind(this);
+
         imageLoader = new ImageLoader(this);
         screenWidth = SelectPhotoAdapter.getScreenWidth(this);
         photoListViewAdapter = new ListViewAdapter<SelectPhotoAdapter.SelectPhotoEntity>(this, R.layout.listview_item, null) {
@@ -85,15 +95,10 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
         initUI();
 
-    }
+//        toolsButton.setOnClickListener(this);
+//        shareButton.setOnClickListener(this);
 
-//    public void pop(View view) {
-//        switch (view.getId()) {
-//            case R.id.filter_button:
-//                BottomDialog.showDialog(this);
-//                break;
-//        }
-//    }
+    }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -101,79 +106,88 @@ public class ImageProcessingActivity extends AppCompatActivity{
         return true;
     }
 
-//    public void initImageView() {
-//
-//        data = getIntent();
-//
-////        ImageView imageView = (ImageView) findViewById(R.id.show_image);
-//
-//        gpuImage = new GPUImage(this);
-//
-//        if(data == null) {
-//            return;
-//        }
-//
-//        boolean isFromCamera = data.getBooleanExtra("isFromCamera",false);
-//        ArrayList<SelectPhotoAdapter.SelectPhotoEntity> selectedPhotos = data.getParcelableArrayListExtra("selectPhotos");
-//
-//        if (selectedPhotos.size() > 0) {
-//            SelectPhotoAdapter.SelectPhotoEntity enUrl = selectedPhotos.get(0);
-//            String url = enUrl.getUrl();
-//            Bitmap myBitmap = BitmapFactory.decodeFile(url);
-//            imageView.setImageBitmap(myBitmap);
-//        }
-//
-//    }
 
-//    @Override
-//    public void submit(int position) {
-//
-//        switch (position) {
-//                    case 0:
-//                        horizontalListViewAdapter.setSelectIndex(position);
-//                        imageView.setImageBitmap(bitmap);
-//                        horizontalListViewAdapter.notifyDataSetChanged();
-//                        break;
-//                    case 1:
-//                        horizontalListViewAdapter.setSelectIndex(position);
-//                        Bitmap grayBitmap = grayScaleImage(bitmap);
-//                        imageView.setImageBitmap(grayBitmap);
-//                        horizontalListViewAdapter.notifyDataSetChanged();
-//                        break;
-//                    case 2:
-//                        horizontalListViewAdapter.setSelectIndex(position);
-//                        Bitmap embossBitmap = embossImage(bitmap);
-//                        imageView.setImageBitmap(embossBitmap);
-//                        horizontalListViewAdapter.notifyDataSetChanged();
-//                        break;
-//                    case 3:
-//                        horizontalListViewAdapter.setSelectIndex(position);
-//                        Bitmap sketchBitmap = sketchImage(bitmap);
-//                        imageView.setImageBitmap(sketchBitmap);
-//                        horizontalListViewAdapter.notifyDataSetChanged();
-//                        break;
-//                    case 4:
-//                        horizontalListViewAdapter.setSelectIndex(position);
-//                        Bitmap pixellateBitmap = pixellateImage(bitmap);
-//                        imageView.setImageBitmap(pixellateBitmap);
-//                        horizontalListViewAdapter.notifyDataSetChanged();
-//                        break;
-//                    case 5:
-//                        horizontalListViewAdapter.setSelectIndex(position);
-//                        Bitmap halftoneBitmap = halftoneImage(bitmap);
-//                        imageView.setImageBitmap(halftoneBitmap);
-//                        horizontalListViewAdapter.notifyDataSetChanged();
-//                        break;
-//                    default:
-//                        break;
-//        }
-//    }
 
+    @OnClick(R.id.btn_share)
+    public void onShareClick(View view) {
+        Toast.makeText(view.getContext(), "OK", Toast.LENGTH_SHORT).show();
+    }
 
     public void initUI(){
 
         Intent data = getIntent();
         gpuImage = new GPUImage(this);
+
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
+
+        TextView arcMenuButton = findViewById(R.id.btn_arcmenu);
+        TextView shareButton = findViewById(R.id.btn_share);
+        TextView saveButton = findViewById(R.id.btn_save);
+        TextView cancelButton = findViewById(R.id.btn_cancel);
+        TextView showPanelButton = findViewById(R.id.btn_show_panel);
+
+        arcMenuButton.setTypeface(font);
+        arcMenuButton.setText(getString(R.string.icon_plus));
+
+        shareButton.setTypeface(font);
+        shareButton.setText(getString(R.string.icon_plane));
+
+        saveButton.setTypeface(font);
+        saveButton.setText(getString(R.string.icon_save));
+
+        cancelButton.setTypeface(font);
+        cancelButton.setText(getString(R.string.icon_cancel));
+
+        showPanelButton.setTypeface(font);
+        showPanelButton.setText(R.string.icon_archive);
+
+        arcMenu = findViewById(R.id.arcMenu);
+
+        arcMenu.setOnMenuItemClickListener(new ArcMenu.OnMenuItemClickListener()
+                {
+                    @Override
+                    public void onClick(View view, int pos)
+                    {
+                        switch (pos) {
+                            case 0:
+                                Toast.makeText(ImageProcessingActivity.this,
+                                        "Share", Toast.LENGTH_SHORT)
+                                        .show();
+                                break;
+                            case 1:
+                                Toast.makeText(ImageProcessingActivity.this,
+                                        "Save", Toast.LENGTH_SHORT)
+                                        .show();
+                                break;
+                            case 2:
+                                finish();
+                                break;
+                            case 3:
+                                slideBottomPanel.displayPanel();
+                                break;
+                        }
+
+                    }
+                });
+
+        slideBottomPanel = findViewById(R.id.filterBottomPanel);
+
+//        slideBottomPanel.setOnDragListener(new View.OnDragListener() {
+//            @Override
+//            public boolean onDrag(View view, DragEvent dragEvent) {
+//                slideBottomPanel.displayPanel();
+//                return false;
+//            }
+//        });
+
+//        Button drag = findViewById(R.id.drop);
+
+//        drag.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                slideBottomPanel.displayPanel();
+//            }
+//        });
 
 
         if(data == null)
@@ -198,6 +212,14 @@ public class ImageProcessingActivity extends AppCompatActivity{
         horizontalListView = (HorizontalListView)findViewById(R.id.horizon_listview);
 //        previewImg = (ImageView) findViewById(R.id.show_image);
 
+        horizontalListView.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                slideBottomPanel.displayPanel();
+                return false;
+            }
+        });
+
         String[] titles = {"Original", "Gray", "Emboss", "Sketch", "Pixellate", "Halftone"};
 
 //         Use GPUImage to process images
@@ -217,6 +239,27 @@ public class ImageProcessingActivity extends AppCompatActivity{
         horizontalListViewAdapter = new HorizontalListViewAdapter(getApplicationContext(), titles, iconBitmaps);
         horizontalListView.setAdapter(horizontalListViewAdapter);
 
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float scaleRatio;
+
+        if(((width > 960) && (width < 2560)) || ((height > 960) && (height < 2560))) {
+            if(width >= height) {
+                scaleRatio = 960 / (float) width;
+            } else {
+                scaleRatio = 960 / (float) height;
+            }
+        } else if((width >= 2560) || (height >= 2560)) {
+            if(width >= height) {
+                scaleRatio = 2560f / (float) width;
+            } else {
+                scaleRatio = 2560f / (float) height;
+            }
+        } else {
+            scaleRatio = 1.0f;
+        }
+
+        bitmap = BitmapUtils.scaleBitmap(bitmap, scaleRatio);
         imageView.setImageBitmap(bitmap);
 
         horizontalListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -236,35 +279,41 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
                 switch (position) {
                     case 0:
+                        slideBottomPanel.hide();
                         horizontalListViewAdapter.setSelectIndex(position);
                         imageView.setImageBitmap(bitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 1:
+                        slideBottomPanel.hide();
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap grayBitmap = grayScaleImage(bitmap);
                         imageView.setImageBitmap(grayBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 2:
+                        slideBottomPanel.hide();
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap embossBitmap = embossImage(bitmap);
                         imageView.setImageBitmap(embossBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 3:
+                        slideBottomPanel.hide();
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap sketchBitmap = sketchImage(bitmap);
                         imageView.setImageBitmap(sketchBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 4:
+                        slideBottomPanel.hide();
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap pixellateBitmap = pixellateImage(bitmap);
                         imageView.setImageBitmap(pixellateBitmap);
                         horizontalListViewAdapter.notifyDataSetChanged();
                         break;
                     case 5:
+                        slideBottomPanel.hide();
                         horizontalListViewAdapter.setSelectIndex(position);
                         Bitmap halftoneBitmap = halftoneImage(bitmap);
                         imageView.setImageBitmap(halftoneBitmap);

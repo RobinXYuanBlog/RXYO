@@ -17,7 +17,7 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
-    <style name="activity_anim"  parent="@android:style/Animation.Activity">
+    <style name="activity_anim" parent="@android:style/Animation.Activity">
 
         <!-- ActivityB Enter Animation -->
         <item name="android:activityOpenEnterAnimation">@anim/in_from_right_to_center</item>
@@ -48,6 +48,11 @@
         <item name="android:windowIsFloating">true</item>
         <!-- Dialog进入及退出动画 -->
         <item name="android:windowAnimationStyle">@style/BottomToTopAnim</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
 </resources>

@@ -1,4 +1,4 @@
-package com.example.robinxyuan.rxyo.Image;
+package com.example.robinxyuan.rxyo.Adapter;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -14,7 +14,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.example.robinxyuan.rxyo.Image.ImageLoader;
+import com.example.robinxyuan.rxyo.Image.MultiTask;
 import com.example.robinxyuan.rxyo.R;
 
 import java.io.File;
@@ -319,7 +320,7 @@ public class SelectPhotoAdapter extends ArrayAdapter<SelectPhotoAdapter.SelectPh
      * @param entity
      * @return
      */
-    HashSet<SelectPhotoEntity> selectedPhotosSet = new HashSet<>(1);
+    public HashSet<SelectPhotoEntity> selectedPhotosSet = new HashSet<>(1);
 
     public boolean checkIsExistedInSelectedPhotoArrayList(SelectPhotoEntity photo) {
         if (selectedPhotosSet == null || selectedPhotosSet.size() == 0)

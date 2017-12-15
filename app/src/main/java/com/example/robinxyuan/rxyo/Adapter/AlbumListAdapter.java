@@ -1,4 +1,4 @@
-package com.example.robinxyuan.rxyo.Image;
+package com.example.robinxyuan.rxyo.Adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.robinxyuan.rxyo.Image.AlbumBean;
+import com.example.robinxyuan.rxyo.Image.ImageLoader;
+import com.example.robinxyuan.rxyo.Image.SelectPhotoActivity;
 import com.example.robinxyuan.rxyo.R;
 
 import java.util.List;

@@ -12,4 +12,15 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <!-- Font Awesome Icons-->
+    <string name="icon_plane">&#xf1d9;</string>
+    <string name="icon_plus">&#xf067;</string>
+    <string name="icon_save">&#xf0ed;</string>
+    <string name="icon_cancel">&#xf05c;</string>
+    <string name="icon_archive">&#xf187;</string>
+    <string name="icon_camera">&#xf083;</string>
+    <string name="icon_image">&#xf03e;</string>
+    <string name="icon_video">&#xf008;</string>
 </resources>

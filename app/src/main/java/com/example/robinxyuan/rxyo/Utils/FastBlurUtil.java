@@ -1,4 +1,4 @@
-package com.example.robinxyuan.rxyo.ImageProcessing;
+package com.example.robinxyuan.rxyo.Utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

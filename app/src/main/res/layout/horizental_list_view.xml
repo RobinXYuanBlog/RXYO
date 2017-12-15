@@ -4,13 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.example.robinxyuan.rxyo.ImageProcessing.HorizontalListView
+    <com.example.robinxyuan.rxyo.CustomView.HorizontalListView.HorizontalListView
         android:id="@+id/horizon_listview"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="@color/myDarkBlue">
 
 
-    </com.example.robinxyuan.rxyo.ImageProcessing.HorizontalListView>
+    </com.example.robinxyuan.rxyo.CustomView.HorizontalListView.HorizontalListView>
 
 </RelativeLayout>

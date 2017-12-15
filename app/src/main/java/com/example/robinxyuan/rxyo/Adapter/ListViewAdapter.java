@@ -1,4 +1,4 @@
-package com.example.robinxyuan.rxyo.Image;
+package com.example.robinxyuan.rxyo.Adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;

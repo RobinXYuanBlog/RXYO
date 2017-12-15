@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="com.example.robinxyuan.innerpositionshowversion.ShowVersion.CameraActivity"
+        tools:showIn="@layout/activity_camera">
+
+        <TextureView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/texture_camera_preview"/>
+
+        <ImageView
+            android:id="@+id/iv_camera_button"
+            android:layout_width="144px"
+            android:layout_height="144px"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:src="@drawable/selector"/>
+
+    </FrameLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -3,20 +3,12 @@ package com.example.robinxyuan.rxyo.ImageProcessing;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.FragmentManager;
-import android.app.LauncherActivity;
-import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,22 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
-import android.widget.ListView;
 
-import com.example.robinxyuan.rxyo.Image.ImageLoader;
-import com.example.robinxyuan.rxyo.Image.ListViewAdapter;
-import com.example.robinxyuan.rxyo.Image.SelectPhotoActivity;
-import com.example.robinxyuan.rxyo.Image.SelectPhotoAdapter;
+import com.example.robinxyuan.rxyo.CustomView.HorizontalListView.HorizontalListView;
+import com.example.robinxyuan.rxyo.Adapter.HorizontalListViewAdapter;
 import com.example.robinxyuan.rxyo.R;
-
-import com.example.robinxyuan.rxyo.R;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageEmbossFilter;

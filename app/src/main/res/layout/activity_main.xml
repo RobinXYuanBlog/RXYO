@@ -123,16 +123,18 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-        <ImageButton
+        <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/photo_button"
-            android:background="@drawable/photo"
+            android:background="#00000000"
+            android:textColor="@color/white"
+            android:textSize="36dip"
             android:layout_weight="1"
-            android:layout_marginRight="46dp"
-            android:layout_marginLeft="46dp"
-            android:layout_marginBottom="55dp"
-            android:layout_marginTop="55dp"/>
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginBottom="50dp"
+            android:layout_marginTop="50dp"/>
 
         </LinearLayout>
 
@@ -143,16 +145,18 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <ImageButton
+            <Button
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/image_button"
-                android:background="@drawable/image"
+                android:background="#00000000"
+                android:textColor="@color/white"
+                android:textSize="36dip"
                 android:layout_weight="1"
-                android:layout_marginRight="46dp"
-                android:layout_marginLeft="46dp"
-                android:layout_marginBottom="55dp"
-                android:layout_marginTop="55dp"/>
+                android:layout_marginRight="35dp"
+                android:layout_marginLeft="35dp"
+                android:layout_marginBottom="50dp"
+                android:layout_marginTop="50dp"/>
 
         </LinearLayout>
 
@@ -163,16 +167,18 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <ImageButton
+            <Button
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/video_button"
-                android:background="@drawable/gif"
+                android:background="#00000000"
+                android:textColor="@color/white"
+                android:textSize="36dip"
                 android:layout_weight="1"
-                android:layout_marginRight="45dp"
-                android:layout_marginLeft="45dp"
-                android:layout_marginBottom="58dp"
-                android:layout_marginTop="55dp"/>
+                android:layout_marginRight="40dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginBottom="52dp"
+                android:layout_marginTop="48dp"/>
 
         </LinearLayout>
 

@@ -29,8 +29,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".Image.SelectPhotoActivity" />
-        <activity android:name=".ImageProcessing.ImageProcessingActivity" />
-        <activity android:name=".Camera.CameraActivity"></activity>
+        <activity android:name=".ImageProcessing.ImageProcessingActivity"
+            android:theme="@style/AppTheme.NoBar"/>
+        <activity android:name=".Camera.CameraActivity" />
     </application>
 
 </manifest>

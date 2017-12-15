@@ -1,4 +1,4 @@
-package com.example.robinxyuan.rxyo.ImageProcessing;
+package com.example.robinxyuan.rxyo.Adapter;
 
 /**
  * Created by robinxyuan on 2017/12/3.
@@ -83,9 +83,9 @@ public class HorizontalListViewAdapter extends BaseAdapter{
     }
     private Bitmap getPropThumnail(Bitmap id){
 //        Drawable d = mContext.getResources().getDrawable(id);
-//        Bitmap b = BitmapUtil.drawableToBitmap(d);
+//        Bitmap b = BitmapUtils.drawableToBitmap(d);
         Bitmap b = id;
-//      Bitmap bb = BitmapUtil.getRoundedCornerBitmap(b, 100);
+//      Bitmap bb = BitmapUtils.getRoundedCornerBitmap(b, 100);
         int w = mContext.getResources().getDimensionPixelOffset(R.dimen.thumnail_default_width);
         int h = mContext.getResources().getDimensionPixelSize(R.dimen.thumnail_default_height);
 

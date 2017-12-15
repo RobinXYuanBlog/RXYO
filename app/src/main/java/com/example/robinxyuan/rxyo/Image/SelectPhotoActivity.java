@@ -15,7 +15,6 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -24,8 +23,11 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.robinxyuan.rxyo.Adapter.AlbumListAdapter;
+import com.example.robinxyuan.rxyo.Adapter.SelectPhotoAdapter;
 import com.example.robinxyuan.rxyo.ImageProcessing.ImageProcessingActivity;
 import com.example.robinxyuan.rxyo.R;
+import com.example.robinxyuan.rxyo.Utils.BitmapUtils;
 
 import java.io.File;
 import java.util.ArrayList;

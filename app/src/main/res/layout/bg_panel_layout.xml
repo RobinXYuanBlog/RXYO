@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:zhy="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/tools"
+    app:ignore="NamespaceTypo">
+
+    <ImageView
+        android:id="@+id/show_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxHeight="200dp"
+        android:layout_margin="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
+    <!--<RelativeLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:id="@+id/bottom_sheet">-->
+
+    <!--</RelativeLayout>-->
+
+    <com.example.robinxyuan.rxyo.CustomView.ArcMenu.ArcMenu
+        android:id="@+id/arcMenu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        zhy:position="center_bottom"
+        zhy:radius="130dp"
+        android:layout_marginBottom="20dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/btn_arcmenu"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_centerInParent="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:textSize="56px"
+                android:textAlignment="center"
+                android:background="@drawable/circle_button"
+                android:textColor="@color/white"
+                android:elevation="10dp"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/btn_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="150dp"
+            android:layout_centerInParent="true"
+            android:textAlignment="center"
+            android:textSize="56px"
+            android:padding="10dp"
+            android:background="@drawable/circle_button"
+            android:textColor="@color/white"
+            android:elevation="5dp"/>
+
+        <TextView
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="150dp"
+            android:layout_centerInParent="true"
+            android:textAlignment="center"
+            android:textSize="56px"
+            android:padding="10dp"
+            android:background="@drawable/circle_button"
+            android:textColor="@color/white"
+            android:elevation="5dp"/>
+
+        <TextView
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="150dp"
+            android:layout_centerInParent="true"
+            android:textAlignment="center"
+            android:textSize="56px"
+            android:padding="10dp"
+            android:background="@drawable/circle_button"
+            android:textColor="@color/white"
+            android:elevation="5dp"/>
+
+        <TextView
+            android:id="@+id/btn_show_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="150dp"
+            android:layout_centerInParent="true"
+            android:textAlignment="center"
+            android:textSize="56px"
+            android:padding="10dp"
+            android:background="@drawable/circle_button"
+            android:textColor="@color/white"
+            android:elevation="5dp"/>
+
+
+    </com.example.robinxyuan.rxyo.CustomView.ArcMenu.ArcMenu>
+
+</RelativeLayout>
