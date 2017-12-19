@@ -24,4 +24,32 @@
         <attr name="sbp_fade" format="boolean"/>
         <attr name="sbp_hide_panel_title" format="boolean"/>
     </declare-styleable>
+
+    <!--Toggle Button-->
+    <attr name="tbtn_position">
+        <enum name="left_top" value="0" />
+        <enum name="right_top" value="1" />
+        <enum name="right_bottom" value="2" />
+        <enum name="left_bottom" value="3" />
+    </attr>
+
+    <attr name="direction">
+        <enum name="turn_up" value="0"/>
+        <enum name="turn_down" value="1"/>
+        <enum name="turn_left" value="2"/>
+        <enum name="turn_right" value="3"/>
+    </attr>
+    <attr name="interval" format="dimension"></attr>
+
+    <declare-styleable name="SensitivityButton">
+        <attr name="tbtn_position"></attr>
+        <attr name="interval"></attr>
+        <attr name="direction"></attr>
+    </declare-styleable>
+
+    <declare-styleable name="ExposureButton">
+        <attr name="tbtn_position"></attr>
+        <attr name="interval"></attr>
+        <attr name="direction"></attr>
+    </declare-styleable>
 </resources>

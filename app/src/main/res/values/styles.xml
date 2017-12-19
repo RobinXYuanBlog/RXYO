@@ -15,6 +15,7 @@
     <style name="AppTheme.NoBar">
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="activity_anim" parent="@android:style/Animation.Activity">
@@ -53,6 +54,19 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ActivityAnimTheme">
+        <item name="android:activityOpenEnterAnimation">@anim/in_from_right_to_center</item>
+        <item name="android:activityOpenExitAnimation">@anim/in_from_left_to_center</item>
+        <item name="android:activityCloseEnterAnimation">@anim/out_from_center_to_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/out_from_center_to_right</item>
+    </style>
+
+    <style name="AppTheme.AnimActivityTheme"  parent="AppTheme.NoBar">
+        <item name="android:windowAnimationStyle">@style/ActivityAnimTheme</item>
+        <item name="android:windowActionBar">true</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

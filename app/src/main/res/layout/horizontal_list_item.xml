@@ -14,7 +14,9 @@
       android:id="@+id/img_list_item"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_centerInParent="true"/>
+      android:layout_centerInParent="true"
+      android:tint="@color/shader"
+      android:tintMode="src_over"/>
 
   <TextView 
       android:id="@+id/text_list_item"

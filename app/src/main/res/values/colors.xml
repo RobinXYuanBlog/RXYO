@@ -8,4 +8,7 @@
     <color name="myYellow">#F3D179</color>
     <color name="myDarkBlue">#112D4E</color>
     <color name="myOrange">#F46060</color>
+    <color name="control_background">#cc4285f4</color>
+
+    <color name="shader">#5024150E</color>
 </resources>

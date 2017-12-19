@@ -1,7 +1,7 @@
 package com.example.robinxyuan.rxyo;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,13 +15,15 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ import com.example.robinxyuan.rxyo.Adapter.ListViewAdapter;
 import com.example.robinxyuan.rxyo.Image.SelectPhotoActivity;
 import com.example.robinxyuan.rxyo.Adapter.SelectPhotoAdapter;
 import com.example.robinxyuan.rxyo.Utils.CommonUtils;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
@@ -48,7 +51,9 @@ import butterknife.OnClick;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageGaussianBlurFilter;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+//import static com.example.robinxyuan.rxyo.App.App.TAKE_PHOTO_CUSTOM;
+
+public class MainActivity extends AppCompatActivity{
 
     ImageLoader imageLoader;
     int screenWidth = 0;
@@ -89,7 +94,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fresco.initialize(this);
         setContentView(R.layout.activity_main);
+        getWindow().setEnterTransition(new Fade().setDuration(2000));
+        getWindow().setExitTransition(new Fade().setDuration(2000));
         mViewPaper = (ViewPager) findViewById(R.id.vp);
 
         gpuImage = new GPUImage(this);
@@ -173,13 +181,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        photoButton = findViewById(R.id.photo_button);
 //        photoButton.setOnClickListener(this);
 
+        Intent photoIntent = new Intent(this, SelectPhotoActivity.class);
+        Intent cameraIntent = new Intent(this, CameraActivity.class);
+
+        //是否使用整个画面作为取景区域(全部为亮色区域)
+//        cameraIntent.putExtra("hideBounds", true);
+        //最大允许的拍照尺寸（像素数）
+//        cameraIntent.putExtra("maxPicturePixels", 3840 * 2160);
+
         imageButton.setTypeface(font);
         imageButton.setText(R.string.icon_image);
-        imageButton.setOnClickListener(this);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(photoIntent);
+            }
+        });
 
         photoButton.setTypeface(font);
         photoButton.setText(R.string.icon_camera);
-        photoButton.setOnClickListener(this);
+
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TedPermission.with(App.sApp)
+                        .setRationaleMessage("We need to use the camera on your device\nWhen system applies for the permission, Please select allow")
+                        .setDeniedMessage("Or you will not start domicile location")
+                        .setRationaleConfirmText("Allow")
+                        .setDeniedCloseButtonText("Close")
+                        .setGotoSettingButtonText("Setting")
+                        .setPermissionListener(new PermissionListener() {
+                            @Override
+                            public void onPermissionGranted() {
+                                Intent intent;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    intent = new Intent(MainActivity.this, CameraActivity.class);
+                                } else {
+                                    new AlertDialog
+                                            .Builder(MainActivity.this)
+                                            .setTitle("Not supported API Level")
+                                            .setMessage("Camera2 API could only be used while API Level > 21, Now, API Level : " + Build.VERSION.SDK_INT)
+                                            .setPositiveButton("确定", (dialog, which) -> dialog.dismiss())
+                                            .show();
+                                    return;
+                                }
+//                                mFile = CommonUtils.createImageFile("mFile");
+                                //文件保存的路径和名称
+//                                intent.putExtra("file", mFile.toString());
+                                //是否使用整个画面作为取景区域(全部为亮色区域)
+                                intent.putExtra("hideBounds", true);
+                                //最大允许的拍照尺寸（像素数）
+                                intent.putExtra("maxPicturePixels", 3840 * 2160);
+                                startActivityForResult(intent, App.TAKE_PHOTO_CUSTOM);
+                            }
+
+                            public void onPermissionDenied(ArrayList<String> arrayList) {
+                            }
+                        }).setPermissions(new String[]{Manifest.permission.CAMERA})
+                        .check();
+            }
+        });
 
         videoButton.setTypeface(font);
         videoButton.setText(R.string.icon_video);
@@ -196,24 +257,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        };
     }
 
+//
+//    @Override
+//    public void onClick(View v) {
+//        switch (v.getId()){
+//            case R.id.image_button:
+//                Intent photoIntent = new Intent(this,SelectPhotoActivity.class);
+////                startActivityForResult(intent,10);
+//                startActivity(photoIntent);
+//                break;
+////            case R.id.photo_button:
+////                Intent cameraIntent = new Intent(this, CameraActivity.class);
+////                startActivity(cameraIntent);
+//////                overridePendingTransition(R.anim.in_from_left_to_center, R.anim.out_from_center_to_right);
+////                break;
+////                Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
+//            default:
+//                break;
+//        }
+//    }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.image_button:
-                Intent photoIntent = new Intent(this,SelectPhotoActivity.class);
-//                startActivityForResult(intent,10);
-                startActivity(photoIntent);
-//                overridePendingTransition(R.anim.in_from_left_to_center, R.anim.out_from_center_to_right);
-                break;
-            case R.id.photo_button:
-                Intent cameraIntent = new Intent(this, CameraActivity.class);
-                startActivity(cameraIntent);
-//                Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
-            default:
-                break;
-        }
-    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

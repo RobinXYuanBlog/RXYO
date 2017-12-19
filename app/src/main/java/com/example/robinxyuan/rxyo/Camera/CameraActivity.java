@@ -2,12 +2,14 @@ package com.example.robinxyuan.rxyo.Camera;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
+import android.graphics.Typeface;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -21,31 +23,35 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.Range;
 import android.util.Size;
 import android.util.SparseIntArray;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.robinxyuan.rxyo.App.App;
+import com.example.robinxyuan.rxyo.CustomView.LineButton.ExposureButton;
+import com.example.robinxyuan.rxyo.CustomView.LineButton.SensitivityButton;
+import com.example.robinxyuan.rxyo.Enum.FlashType;
+import com.example.robinxyuan.rxyo.Enum.StateType;
+import com.example.robinxyuan.rxyo.ImageProcessing.ImageProcessingActivity;
 import com.example.robinxyuan.rxyo.R;
 import com.example.robinxyuan.rxyo.Utils.CameraUtils;
+import com.example.robinxyuan.rxyo.Utils.CommonUtils;
 import com.jakewharton.rxbinding2.view.RxView;
 
 import java.io.File;
@@ -55,14 +61,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+
+import butterknife.*;
+
 
 /**
  * Camera2 API. Android Lollipop 及以后版本的 Android 使用 Camera2 API.
@@ -81,14 +89,48 @@ public class CameraActivity extends AppCompatActivity {
     @BindView(R.id.iv_camera_button)
     ImageView mIvCameraButton;
 
+    @BindView(R.id.exp_button)
+    TextView expButton;
 
-//    @BindView(R.id.switch_camera_button)
-//    FloatingActionButton switchCameraButton;
+    @BindView(R.id.flash_button)
+    SwitchFlashButton flashButton;
 
+    @BindView(R.id.camera_button)
+    Button changeCameraButton;
 
+    @BindView(R.id.format_button)
+    Button formatButton;
+
+    @BindView(R.id.iso_line_button)
+    SensitivityButton isoLineButton;
+
+    @BindView(R.id.iso_button)
+    TextView isoButton;
+
+    @BindView(R.id.iso_plus_button)
+    TextView isoPlusButton;
+
+    @BindView(R.id.iso_minus_button)
+    TextView isoMinusButton;
+
+    @BindView(R.id.iso_text)
+    TextView isoText;
+
+    @BindView(R.id.exp_line_button)
+    ExposureButton expLineButton;
+
+    @BindView(R.id.exp_plus_button)
+    TextView expPlusButton;
+
+    @BindView(R.id.exp_minus_button)
+    TextView expMinusButton;
+
+    @BindView(R.id.exp_text)
+    TextView expText;
 
     Unbinder mUnbinder;
 
+    HashMap<String, Long> exposureTimeList = new HashMap<>();
 
     /**
      * finish()是否已调用过
@@ -153,6 +195,66 @@ public class CameraActivity extends AppCompatActivity {
     static final int MAX_PREVIEW_HEIGHT = 1080;
 
     /**
+     *  Set stateType
+     */
+    private StateType state = StateType.STATE_PREVIEW;
+
+    /**
+     *  Initialize iso value to 400
+     */
+    private int isoValue = 400;
+
+    /**
+     *  ISO values list
+     */
+
+    private int[] isoValues = {
+            100, 200, 400, 800, 1600,
+            2400, 3200, 4800, 6400
+    };
+
+    /**
+     *  Variable for storing the iso range of camera
+     */
+    private Range<Integer> isoRange = null;
+
+    /**
+     *  max Exposure Time Value
+     */
+    private long maxExpValue;
+
+    /**
+     *  min Exposure Time Value
+     */
+    private Long minExpValue;
+
+    /**
+     *  Variable for changing exposure time
+     */
+    private long expTime;
+
+    /**
+     *  Variable for storing exposure time range of camera
+     */
+    private Range<Long> expTimeRange = null;
+
+    /**
+     *  Array for storing exposure time levels
+     */
+    private long[] expTimeValues = new long[1200];
+
+    /**
+     *  Pre-define the ids of CAMERA
+     */
+    public static final String CAMERA_FRONT = "1";
+    public static final String CAMERA_BACK = "0";
+
+    private String isoContent = null;
+    private String expTimeContent = null;
+
+    private Handler handler = null;
+
+    /**
      * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
      * {@link TextureView}.
      */
@@ -176,7 +278,7 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * ID of the current {@link CameraDevice}.
      */
-    String mCameraId;
+    String mCameraId = CAMERA_BACK;
 
     /**
      * A {@link CameraCaptureSession } for camera preview.
@@ -192,36 +294,6 @@ public class CameraActivity extends AppCompatActivity {
      * The {@link Size} of camera preview.
      */
     Size mPreviewSize;
-
-    /**
-     *  Default camera is front camera
-     */
-    private int lensFacing = CameraCharacteristics.LENS_FACING_FRONT;
-
-    /**
-     *  Initial ISO value is 400
-     */
-    private int isoValue = 400;
-
-    /**
-     *  Initial exposure time is 50us
-     */
-    private long mExposureTime = 50000L;
-
-    /**
-     *  The ISO range of the camera device
-     */
-    private Range<Integer> isoRange = null;
-
-    /**
-     *  The exposure time range of the camera device
-     */
-    private Range<Long> expTimeRange = null;
-
-    /**
-     *  Default state type is STATE_PREVIEW
-     */
-//    private StateType state = StateType.STATE_PREVIEW;
 
     /**
      * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its state.
@@ -279,13 +351,13 @@ public class CameraActivity extends AppCompatActivity {
      * This a callback object for the {@link ImageReader}. "onImageAvailable" will be called when a
      * still image is ready to be saved.
      */
-//    ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
-//        @Override
-//        public void onImageAvailable(ImageReader reader) {
-//            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
-//        }
-//
-//    };
+    ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+        @Override
+        public void onImageAvailable(ImageReader reader) {
+            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+        }
+
+    };
 
     /**
      * {@link CaptureRequest.Builder} for the camera preview
@@ -381,13 +453,11 @@ public class CameraActivity extends AppCompatActivity {
 
         @Override
         public void onCaptureProgressed(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
-            super.onCaptureProgressed(session, request, partialResult);
             process(partialResult);
         }
 
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-            super.onCaptureCompleted(session, request, result);
             process(result);
         }
 
@@ -398,23 +468,10 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(getContentViewResId());
 
+        handler = new Handler();
+
         mUnbinder = ButterKnife.bind(this);
         preInitData();
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            finish();
-        }
-        return true;
     }
 
     /**
@@ -484,8 +541,12 @@ public class CameraActivity extends AppCompatActivity {
             for (String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
 
-                Integer integer = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if(integer != null && integer == CameraCharacteristics.LENS_FACING_FRONT) continue;
+                isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE);
+
+                expTimeRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE);
+
+                minExpValue = expTimeRange.getLower();
+                maxExpValue = expTimeRange.getUpper();
 
                 StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
                 if (map == null) continue;
@@ -499,7 +560,7 @@ public class CameraActivity extends AppCompatActivity {
                  */
                 Size largest = CameraUtils.findBestSize(map.getOutputSizes(ImageFormat.JPEG), mMaxPicturePixels);
                 mImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.JPEG, /*maxImages*/2);
-//                mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
+                mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
 
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
@@ -550,7 +611,7 @@ public class CameraActivity extends AppCompatActivity {
                 Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
                 mFlashSupported = available == null ? false : available;
 
-                mCameraId = cameraId;
+//                mCameraId = cameraId;
                 return;
             }
         } catch (Exception e) {
@@ -565,7 +626,6 @@ public class CameraActivity extends AppCompatActivity {
         setUpCameraOutputs(width, height);
         configureTransform(width, height);
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-
         try {
             if (!mCameraOpenCloseLock.tryAcquire(4, TimeUnit.SECONDS))
                 throw new RuntimeException("Time out waiting to lock camera opening.");
@@ -582,9 +642,30 @@ public class CameraActivity extends AppCompatActivity {
             manager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(App.sApp, "Open Camera Failure. Please Try Again!", Toast.LENGTH_LONG).show();
+            Toast.makeText(App.sApp, "相机开启失败，再试一次吧", Toast.LENGTH_LONG).show();
             mFinishCalled = true;
             finish();
+        }
+    }
+
+    public void switchCamera() {
+        if (mCameraId.equals(CAMERA_FRONT)) {
+            mCameraId = CAMERA_BACK;
+            closeCamera();
+            reopenCamera();
+
+        } else if (mCameraId.equals(CAMERA_BACK)) {
+            mCameraId = CAMERA_FRONT;
+            closeCamera();
+            reopenCamera();
+        }
+    }
+
+    public void reopenCamera() {
+        if (mTextureView.isAvailable()) {
+            openCamera(mTextureView.getWidth(), mTextureView.getHeight());
+        } else {
+            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
     }
 
@@ -666,19 +747,20 @@ public class CameraActivity extends AppCompatActivity {
                     try {
                         // Auto focus should be continuous for camera preview.
                         mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-                        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_MODE_OFF);
-//                        mPreviewRequestBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
-//                        mPreviewRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, mExposureTime);
-
                         // Flash is automatically enabled when necessary.
-//                        setAutoFlash(mPreviewRequestBuilder);
+                        setAutoFlash(mPreviewRequestBuilder);
+                        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_MODE_OFF);
+                        mPreviewRequestBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
+                        mPreviewRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, 50000000L);
+
+//                        expText.setText("Exposure Time " + expTime + " ms");
 
                         // Finally, we start displaying the camera preview.
                         mPreviewRequest = mPreviewRequestBuilder.build();
                         mCaptureSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(App.sApp, "Open Camera Failure，Please Try Again!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(App.sApp, "开启相机预览失败，再试一次吧", Toast.LENGTH_LONG).show();
                         mFinishCalled = true;
                         finish();
                     }
@@ -686,18 +768,38 @@ public class CameraActivity extends AppCompatActivity {
 
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-                    Toast.makeText(App.sApp, "Open Camera Failure，Please Try Again!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(App.sApp, "开启相机预览失败，再试一次吧", Toast.LENGTH_LONG).show();
                     mFinishCalled = true;
                     finish();
                 }
             }, null);
+//
+//            long expTimeMilliSecond = expTime / 1000;
+//            String expTimeString = "Exposure Time " + expTimeMilliSecond + " ms";
+
+//            expText.setText(expTimeString);
+
+//            new Thread() {
+//                public void run() {
+//                    expTimeContent = expTimeString;
+//                    handler.post(runnableUI);
+//                    handler.removeCallbacks(runnableUI);
+//                }
+//            }.start();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(App.sApp, "Open Camera Failure，Please Try Again!", Toast.LENGTH_LONG).show();
+            Toast.makeText(App.sApp, "开启相机预览失败，再试一次吧", Toast.LENGTH_LONG).show();
             mFinishCalled = true;
             finish();
         }
     }
+//
+//    Runnable runnableUI = new Runnable() {
+//        @Override
+//        public void run() {
+//            expText.setText(expTimeContent);
+//        }
+//    };
 
     /**
      * Configures the necessary {@link Matrix} transformation to `mTextureView`.
@@ -741,9 +843,6 @@ public class CameraActivity extends AppCompatActivity {
         try {
             // This is how to tell the camera to lock focus.
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
-            mPreviewRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3);
-//            mPreviewRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, mExposureTime);
-//            mPreviewRequestBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
             // Tell #mCaptureCallback to wait for the lock.
             mState = STATE_WAITING_LOCK;
             mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
@@ -760,8 +859,6 @@ public class CameraActivity extends AppCompatActivity {
         try {
             // This is how to tell the camera to trigger.
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-//            mPreviewRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, mExposureTime);
-//            mPreviewRequestBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
             // Tell #mCaptureCallback to wait for the precapture sequence to be set.
             mState = STATE_WAITING_PRECAPTURE;
             mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
@@ -775,7 +872,6 @@ public class CameraActivity extends AppCompatActivity {
      * {@link #mCaptureCallback} from both {@link #lockFocus()}.
      */
     void captureStillPicture() {
-
         try {
             if (null == mCameraDevice) return;
             // This is the CaptureRequest.Builder that we use to take a picture.
@@ -783,12 +879,11 @@ public class CameraActivity extends AppCompatActivity {
             captureBuilder.addTarget(mImageReader.getSurface());
 
             // Use the same AE and AF modes as the preview.
-            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            setAutoFlash(captureBuilder);
             captureBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
-//            captureBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
-//            captureBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, mExposureTime);
-//            setAutoFlash(captureBuilder);
+            captureBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
+            captureBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, 50000000L);
 
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
@@ -831,7 +926,7 @@ public class CameraActivity extends AppCompatActivity {
         try {
             // Reset the auto-focus trigger
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
-//            setAutoFlash(mPreviewRequestBuilder);
+            setAutoFlash(mPreviewRequestBuilder);
             mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
             // After this, the camera will go back to the normal state of preview.
             mState = STATE_PREVIEW;
@@ -841,64 +936,70 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-//    void setAutoFlash(CaptureRequest.Builder requestBuilder) {
-//        /**
-//         * 若相机支持自动开启/关闭闪光灯，则使用. 否则闪光灯总是关闭的.
-//         */
-//        if (mFlashSupported)
-//            requestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
-//    }
+    void setAutoFlash(CaptureRequest.Builder requestBuilder) {
+        /**
+         * 若相机支持自动开启/关闭闪光灯，则使用. 否则闪光灯总是关闭的.
+         */
+        if (mFlashSupported) requestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+    }
+
+
 
     /**
      * Saves a JPEG {@link Image} into the specified {@link File}.
      */
-//    class ImageSaver implements Runnable {
-//
-//        /**
-//         * The JPEG image
-//         */
-//        final Image mImage;
-//        /**
-//         * The file we save the image into.
-//         */
-//        final File mFile;
-//
-//        ImageSaver(Image image, File file) {
-//            mImage = image;
-//            mFile = file;
-//        }
-//
-//        @SuppressWarnings("ResultOfMethodCallIgnored")
-//        @Override
-//        public void run() {
-//            ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
-//            byte[] bytes = new byte[buffer.remaining()];
-//            buffer.get(bytes);
-//            try {
-//                if (mFile.exists()) mFile.delete();
-//                FileOutputStream output = new FileOutputStream(mFile);
-//                output.write(bytes);
-//                try {
-//                    mImage.close();
-//                } catch (Exception ignored) {
-//                }
-//                try {
-//                    output.close();
-//                } catch (Exception ignored) {
-//                }
-//                /**
-//                 * 拍照完成后返回MainActivity.
-//                 */
-//                App.mHandler.post(() -> {
+    class ImageSaver implements Runnable {
+
+        /**
+         * The JPEG image
+         */
+        final Image mImage;
+        /**
+         * The file we save the image into.
+         */
+        final File mFile;
+
+        ImageSaver(Image image, File file) {
+            mImage = image;
+            mFile = file;
+        }
+
+        @SuppressWarnings("ResultOfMethodCallIgnored")
+        @Override
+        public void run() {
+            ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            try {
+                if (mFile.exists()) mFile.delete();
+                FileOutputStream output = new FileOutputStream(mFile);
+                output.write(bytes);
+                try {mImage.close();} catch (Exception ignored) {}
+                try {output.close();} catch (Exception ignored) {}
+                /**
+                 * 拍照完成后返回MainActivity.
+                 */
+                App.mHandler.post(() -> {
 //                    setResult(200, getIntent().putExtra("file", mFile.toString()));
-//                    mFinishCalled = true;
-//                    finish();
-//                });
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+
+                    Intent intent = new Intent(CameraActivity.this, ImageProcessingActivity.class);
+
+                    mFinishCalled = true;
+
+                    intent.putExtra("file", mFile.toString());
+                    intent.putExtra("isFromCamera", true);
+
+                    setResult(200, intent);
+
+                    startActivity(intent);
+                    finish();
+
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /**
      * Compares two {@code Size}s based on their areas.
@@ -913,26 +1014,165 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
-    private CaptureRequest.Builder setISOCaptureRequest(CaptureRequest.Builder builder, int isoValue) {
-        builder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
-
-        return builder;
-    }
-
-
     protected int getContentViewResId() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         return R.layout.activity_camera;
     }
 
+    private int currentISOValue = 2;
+    private int currentExpValue = 5;
+
     protected void preInitData() {
 //        mFile = new File(getIntent().getStringExtra("file"));
-//        mTvCameraHint.setText(getIntent().getStringExtra("hint"));
-//        if (getIntent().getBooleanExtra("hideBounds", false)) {
-//            mViewDark0.setVisibility(View.INVISIBLE);
-//            mViewDark1.setVisibility(View.INVISIBLE);
-//        }
-//        mMaxPicturePixels = getIntent().getIntExtra("maxPicturePixels", 3840 * 2160);
+        mFile = CommonUtils.createImageFile("mFile");
+        mMaxPicturePixels = getIntent().getIntExtra("maxPicturePixels", 3840 * 2160);
+
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/fontawesome-webfont.ttf");
+
+//        isoText.setText("ISO 400");
+
+        isoButton.setTypeface(font);
+        isoButton.setText(R.string.icon_adjust);
+
+        expButton.setTypeface(font);
+        expButton.setText(R.string.icon_exptime);
+
+        isoPlusButton.setTypeface(font);
+        isoPlusButton.setText(R.string.icon_plus);
+
+        isoMinusButton.setTypeface(font);
+        isoMinusButton.setText(R.string.icon_minus);
+
+        isoLineButton.setOnMenuItemClickListener((view, pos) -> {
+//                int isoCount = 0;
+            switch (pos) {
+                case 0:
+                    Log.e("ISO", "ISO Add");
+                    if(currentISOValue < isoValues.length - 1) {
+                        currentISOValue++;
+                        isoMinusButton.setText(R.string.icon_minus);
+                        isoPlusButton.setText(R.string.icon_plus);
+                        isoMinusButton.setTextSize(20);
+                        isoPlusButton.setTextSize(20);
+                        isoValue = isoValues[currentISOValue];
+                        switchISO(isoValue);
+                    }
+
+                    if(currentISOValue == isoValues.length - 1) {
+                        isoValue = isoValues[currentISOValue];
+                        switchISO(isoValue);
+                        isoPlusButton.setText(R.string.icon_ban);
+                        isoPlusButton.setTextSize(18);
+                        isoPlusButton.setClickable(false);
+                    } else if(currentISOValue > isoValues.length - 1) {
+                        currentISOValue = isoValues.length - 1;
+                        isoValue = isoValues[currentISOValue];
+                    }
+                    break;
+                case 1:
+                    Log.e("ISO", "ISO Minus");
+                    if(currentISOValue > 0) {
+                        currentISOValue --;
+                        isoPlusButton.setText(R.string.icon_plus);
+                        isoMinusButton.setText(R.string.icon_minus);
+                        isoMinusButton.setTextSize(20);
+                        isoPlusButton.setTextSize(20);
+                        isoValue = isoValues[currentISOValue];
+                        switchISO(isoValue);
+                    }
+
+                    if(currentISOValue == 0) {
+                        currentISOValue = 0;
+                        isoValue = isoValues[currentISOValue];
+                        switchISO(isoValue);
+                        isoMinusButton.setText(R.string.icon_ban);
+                        isoMinusButton.setTextSize(18);
+                        isoMinusButton.setClickable(false);
+                    } else if(currentISOValue < 0) {
+                        currentISOValue = 0;
+                        isoValue = isoValues[currentISOValue];
+                    }
+                    break;
+            }
+        });
+
+        expPlusButton.setTypeface(font);
+        expPlusButton.setText(R.string.icon_plus);
+
+        expMinusButton.setTypeface(font);
+        expMinusButton.setText(R.string.icon_minus);
+
+        expLineButton.setOnMenuItemClickListener((view, pos) -> {
+            switch (pos) {
+                case 0:
+                    Log.e("EXP", "EXP Add");
+//                        if(currentExpValue < expTimeValues.length - 1) {
+//                            currentExpValue++;
+//                            expMinusButton.setText(R.string.icon_minus);
+//                            expPlusButton.setText(R.string.icon_plus);
+//                            expMinusButton.setTextSize(20);
+//                            expPlusButton.setTextSize(20);
+//                            expTime = expTimeValues[currentExpValue];
+//                            switchExposureTime(500000000L);
+//                        }
+//
+//                        if(currentExpValue == expTimeValues.length - 1) {
+//                            expTime = expTimeValues[currentExpValue];
+//                            switchExposureTime(expTime);
+//                            expPlusButton.setText(R.string.icon_ban);
+//                            expPlusButton.setTextSize(18);
+//                            expPlusButton.setClickable(false);
+//                        } else if(currentExpValue > expTimeValues.length - 1) {
+//                            currentExpValue = expTimeValues.length - 1;
+//                            expTime = expTimeValues[currentExpValue];
+//                        }
+                    break;
+                case 1:
+                    Log.e("EXP", "EXP Minus");
+//                        if(currentExpValue > 0) {
+//                            currentExpValue --;
+//                            expPlusButton.setText(R.string.icon_plus);
+//                            expMinusButton.setText(R.string.icon_minus);
+//                            expMinusButton.setTextSize(20);
+//                            expPlusButton.setTextSize(20);
+//                            expTime = expTimeValues[currentExpValue];
+//                            switchExposureTime(500000000L);
+//                        }
+//
+//                        if(currentExpValue == 0) {
+//                            currentExpValue = 0;
+//                            expTime = expTimeValues[currentExpValue];
+//                            switchExposureTime(500000000L);
+//                            expMinusButton.setText(R.string.icon_ban);
+//                            expMinusButton.setTextSize(18);
+//                            expMinusButton.setClickable(false);
+//                        } else if(currentExpValue < 0) {
+//                            currentExpValue = 0;
+//                            expTime = expTimeValues[currentExpValue];
+//                        }
+                    break;
+            }
+        });
+
+
+//        flashButton.setTypeface(font);
+//        flashButton.setText(R.string.icon_flash);
+//
+//        flashButton.setOnClickListener(this::switchFlash());
+
+        flashButton.setOnSwitchFlashListener(this::switchFlash);
+
+        changeCameraButton.setTypeface(font);
+        changeCameraButton.setText(R.string.icon_change_camera);
+
+        changeCameraButton.setOnClickListener(view -> {
+            switchCamera();
+        });
+
+        formatButton.setTypeface(font);
+        formatButton.setText(R.string.icon_format);
+
+
         RxView.clicks(mIvCameraButton)
                 /**
                  * 防止手抖连续多次点击造成错误
@@ -940,22 +1180,88 @@ public class CameraActivity extends AppCompatActivity {
                 .throttleFirst(2, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aVoid -> takePicture());
-//
-//        switchCameraButton.setOnClickListener(view -> {
-//            if (lensFacing == CameraCharacteristics.LENS_FACING_FRONT) {
-//                lensFacing = CameraCharacteristics.LENS_FACING_BACK;
-//            } else {
-//                lensFacing = CameraCharacteristics.LENS_FACING_FRONT;
-//            }
-//            closeCamera();
-//            openCamera(mTextureView.getWidth(), mTextureView.getHeight());
-//        });
+
+    }
+
+    private CaptureRequest.Builder setFlashCaptureRequest(CaptureRequest.Builder builder, FlashType flashType) {
+        switch (flashType) {
+            case AUTO:
+                builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+                break;
+            case ON:
+                builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH);
+                break;
+            case OFF:
+                builder.set(CaptureRequest.FLASH_MODE, CaptureResult.FLASH_MODE_OFF);
+                break;
+        }
+        return builder;
+    }
+
+    private void switchFlash(FlashType flashType) {
+        mPreviewRequestBuilder = setFlashCaptureRequest(mPreviewRequestBuilder, flashType);
+        try {
+            mCaptureSession.stopRepeating();
+            mPreviewRequest = mPreviewRequestBuilder.build();
+            mCaptureSession.capture(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
+            state = StateType.STATE_PREVIEW;
+            mCaptureSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private CaptureRequest.Builder setISOCaptureRequest(CaptureRequest.Builder builder, int isoValue) {
+        builder.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
+
+        return builder;
+    }
+
+    private void switchISO(int isoValue) {
+        mPreviewRequestBuilder = setISOCaptureRequest(mPreviewRequestBuilder, isoValue);
+        try {
+            mCaptureSession.stopRepeating();
+            mPreviewRequest = mPreviewRequestBuilder.build();
+            mCaptureSession.capture(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
+//            state = StateType.STATE_PREVIEW;
+//            state = StateType.STATE_PICTURE_TAKEN;
+            mCaptureSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
+            String isoString = "ISO " + mPreviewRequestBuilder.get(CaptureRequest.SENSOR_SENSITIVITY).toString();
+            isoText.setText(isoString);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private CaptureRequest.Builder setExposureTime(CaptureRequest.Builder builder, long exposureTime) {
+        builder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime);
+
+        return builder;
+    }
+
+    private void switchExposureTime(long exposureTime) {
+        mPreviewRequestBuilder = setExposureTime(mPreviewRequestBuilder, exposureTime);
+        try {
+            mCaptureSession.stopRepeating();
+            mPreviewRequest = mPreviewRequestBuilder.build();
+            mCaptureSession.capture(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
+            state = StateType.STATE_PICTURE_TAKEN;
+            mCaptureSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback, mBackgroundHandler);
+            expText.setText("Exposure Time " + mPreviewRequestBuilder.get(CaptureRequest.SENSOR_EXPOSURE_TIME).intValue() / 1000 + " ms");
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         startBackgroundThread();
+
+//        long expTimeMilliSecond = expTime / 1000;
+//        String expTimeString = "Exposure Time " + expTimeMilliSecond + " ms";
+//
+//        expText.setText(expTimeString);
 
         // When the screen is turned off and turned back on, the SurfaceTexture is already
         // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
@@ -965,14 +1271,6 @@ public class CameraActivity extends AppCompatActivity {
             openCamera(mTextureView.getWidth(), mTextureView.getHeight());
         } else {
             mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mUnbinder != null) {
-            mUnbinder.unbind();
         }
     }
 
@@ -988,5 +1286,13 @@ public class CameraActivity extends AppCompatActivity {
         closeCamera();
         stopBackgroundThread();
         if (!mFinishCalled) finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mUnbinder != null) {
+            mUnbinder.unbind();
+        }
     }
 }

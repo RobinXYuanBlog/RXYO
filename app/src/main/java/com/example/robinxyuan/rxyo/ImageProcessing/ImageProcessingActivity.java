@@ -1,13 +1,18 @@
 package com.example.robinxyuan.rxyo.ImageProcessing;
 
+import android.app.ActivityOptions;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.DragEvent;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,10 +28,14 @@ import com.example.robinxyuan.rxyo.Adapter.HorizontalListViewAdapter;
 import com.example.robinxyuan.rxyo.Image.ImageLoader;
 import com.example.robinxyuan.rxyo.Adapter.ListViewAdapter;
 import com.example.robinxyuan.rxyo.Adapter.SelectPhotoAdapter;
+import com.example.robinxyuan.rxyo.MainActivity;
 import com.example.robinxyuan.rxyo.R;
 import com.example.robinxyuan.rxyo.SlideBottomPanel.SlideBottomPanel;
 import com.example.robinxyuan.rxyo.Utils.BitmapUtils;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
@@ -37,9 +46,11 @@ import jp.co.cyberagent.android.gpuimage.GPUImageGrayscaleFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageHalftoneFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImagePixelationFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageSketchFilter;
+
+import static android.support.v7.app.AlertDialog.*;
 //import me.next.slidebottompanel.SlideBottomPanel;
 
-public class ImageProcessingActivity extends AppCompatActivity{
+public class ImageProcessingActivity extends AppCompatActivity implements ProcessItemFragment.OnFragmentInteractionListener{
 
     ImageLoader imageLoader;
     int screenWidth = 0;
@@ -57,22 +68,11 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
     private ArcMenu arcMenu;
 
-//    @BindView(R.id.filterBottomPanel)
     SlideBottomPanel slideBottomPanel;
 
-//    @BindView(R.id.filter_button) Button filterButton;
-    Button filterButton;
+    SlideBottomPanel processBottomPanel;
 
-//    Intent data;
-//
-//    @BindView(R.id.filter_button)
-//    Button filterButton;
-//
-//    @BindView(R.id.tools_button)
-//    Button toolsButton;
-//
-//    @BindView(R.id.share_button)
-//    Button shareButton;
+    Button filterButton;
 
     ImageView imageView;
 
@@ -150,9 +150,10 @@ public class ImageProcessingActivity extends AppCompatActivity{
                     {
                         switch (pos) {
                             case 0:
-                                Toast.makeText(ImageProcessingActivity.this,
-                                        "Share", Toast.LENGTH_SHORT)
-                                        .show();
+                                new ProcessItemFragment().show(getSupportFragmentManager(), null);
+//                                Toast.makeText(ImageProcessingActivity.this,
+//                                        "Share", Toast.LENGTH_SHORT)
+//                                        .show();
                                 break;
                             case 1:
                                 Toast.makeText(ImageProcessingActivity.this,
@@ -160,7 +161,7 @@ public class ImageProcessingActivity extends AppCompatActivity{
                                         .show();
                                 break;
                             case 2:
-                                finish();
+                                showNormalDialog();
                                 break;
                             case 3:
                                 slideBottomPanel.displayPanel();
@@ -172,24 +173,6 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
         slideBottomPanel = findViewById(R.id.filterBottomPanel);
 
-//        slideBottomPanel.setOnDragListener(new View.OnDragListener() {
-//            @Override
-//            public boolean onDrag(View view, DragEvent dragEvent) {
-//                slideBottomPanel.displayPanel();
-//                return false;
-//            }
-//        });
-
-//        Button drag = findViewById(R.id.drop);
-
-//        drag.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                slideBottomPanel.displayPanel();
-//            }
-//        });
-
-
         if(data == null)
             return;
 
@@ -200,12 +183,18 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
         imageView = findViewById(R.id.show_image);
 
-        if (selectedPhotos.size() > 0) {
-            SelectPhotoAdapter.SelectPhotoEntity enUrl = selectedPhotos.get(0);
-            String url = enUrl.getUrl();
-            bitmap = BitmapFactory.decodeFile(url);
+        if(isFromCamera == true) {
+            bitmap = BitmapFactory.decodeFile(new File(data.getStringExtra("file")).toString());
             imageView.setImageBitmap(bitmap);
+        } else {
+            if (selectedPhotos.size() > 0) {
+                SelectPhotoAdapter.SelectPhotoEntity enUrl = selectedPhotos.get(0);
+                String url = enUrl.getUrl();
+                bitmap = BitmapFactory.decodeFile(url);
+                imageView.setImageBitmap(bitmap);
+            }
         }
+
 
         iconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.original);
 
@@ -335,6 +324,47 @@ public class ImageProcessingActivity extends AppCompatActivity{
 
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            showNormalDialog();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void showNormalDialog(){
+        /* @setIcon 设置对话框图标
+         * @setTitle 设置对话框标题
+         * @setMessage 设置对话框消息提示
+         * setXXX方法返回Dialog对象，因此可以链式设置属性
+         */
+        final Builder normalDialog =
+                new Builder(ImageProcessingActivity.this);
+        normalDialog.setTitle("Message");
+        normalDialog.setMessage("You really want to give up processing?");
+        normalDialog.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(ImageProcessingActivity.this, MainActivity.class);
+//                        finish();
+//                        startActivity(intent);
+//                        overridePendingTransition(R.anim.out_from_center_to_right, R.anim.in_from_left_to_center);
+                        finish();
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(ImageProcessingActivity.this).toBundle());
+                    }
+                });
+        normalDialog.setNegativeButton("NO",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        // 显示
+        normalDialog.show();
+    }
+
     private Bitmap grayScaleImage(Bitmap bitmap) {
 
         gpuImage.setImage(bitmap);
@@ -385,4 +415,8 @@ public class ImageProcessingActivity extends AppCompatActivity{
         return halftoneBitmap;
     }
 
+    @Override
+    public void onFragmentInteraction(@NotNull Uri uri) {
+
+    }
 }

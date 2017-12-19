@@ -10,6 +10,11 @@
     <string name="share_button">Share</string>
     <string name="action_settings">Settings</string>
 
+    <string name="picture">Picture</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_main2">Main2Activity</string>
@@ -23,4 +28,13 @@
     <string name="icon_camera">&#xf083;</string>
     <string name="icon_image">&#xf03e;</string>
     <string name="icon_video">&#xf008;</string>
+    <string name="icon_adjust">&#xf042;</string>
+    <string name="icon_flash">&#xf0e7;</string>
+    <string name="icon_format">&#xf260;</string>
+    <string name="icon_exptime">&#xf017;</string>
+    <string name="icon_change_camera">&#xf030;</string>
+    <string name="icon_minus">&#xf068;</string>
+    <string name="icon_ban">&#xf05e;</string>
+
+    <item name="iso_value" type="id"></item>
 </resources>

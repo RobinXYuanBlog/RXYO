@@ -25,8 +25,9 @@
         android:layout_height="wrap_content"
         app:sbp_hide_panel_title="true"
         app:sbp_title_height_no_display="0dp"
-        app:sbp_panel_height="380dp"
+        app:sbp_panel_height="100dp"
         android:elevation="5dp"
+        android:background="@color/shader"
         app:sbp_background_layout="@layout/bg_panel_layout">
 
         <FrameLayout

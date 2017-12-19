@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:zhy="http://schemas.android.com/apk/res-auto"
+    xmlns:rxyo="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/tools"
     app:ignore="NamespaceTypo">
 
@@ -26,8 +26,8 @@
         android:id="@+id/arcMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        zhy:position="center_bottom"
-        zhy:radius="130dp"
+        rxyo:position="center_bottom"
+        rxyo:radius="130dp"
         android:layout_marginBottom="20dp">
 
         <RelativeLayout
