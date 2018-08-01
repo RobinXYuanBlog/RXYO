@@ -11,7 +11,7 @@ Users could use build-in filters or change photo styles by themselves
 Users could not only record their lives by static photo but also by gif.
 
 ## Start time
-11.2017
+12.2017
 
 ## Process
 Finished adjust ISO, change camera face and simple filters.
